@@ -1,0 +1,35 @@
+Primero lanzar api:
+uvicorn server.api:app --host 0.0.0.0 --port 8000 --reload
+
+Luego lanzar interfaz:
+streamlit run gui/app.py
+
+
+
+
+
+------------------------ Docker---------------------------------
+
+    Clona o copia todo a tu carpeta MCP.
+
+    Coloca el .streamlit/secrets.toml en gui/.streamlit/secrets.toml con la URL backend correcta (en Docker se usa http://backend:8000/process).
+
+    Construye y arranca todo con:
+
+docker-compose up --build
+
+    Abre tu navegador en http://localhost:8501 para usar la interfaz.
+
+    El backend estará en http://localhost:8000/process y el frontend habla con él por el hostname backend dentro de la red Docker.
+    
+Notas finales
+
+    Puedes hacer docker-compose down para parar.
+
+    Ajusta permisos, variables de entorno o redes si tienes más necesidades.
+
+    Si quieres acceder a MCP desde otro equipo, asegúrate de exponer los puertos y usar la IP correcta.
+
+    Puedes agregar volúmenes para persistir logs o datos.
+
+    Los agentes que usan llamadas a internet (clima, ubicación) deben tener acceso a red.
