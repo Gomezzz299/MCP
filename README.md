@@ -18,6 +18,11 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 
 ```
 MCP/
+├── core/
+│   ├── registry.py          # Registra todos los agentes
+│   └── router_llm.py        # Permite distribución entre agentes
+├── agents/
+│   └── agent.py             # cada agente incluido en el servidor
 ├── server/
 │   ├── mcp_server.py        # Lógica del MCP
 │   └── api.py               # Backend FastAPI
@@ -25,6 +30,8 @@ MCP/
 │   ├── app.py               # Interfaz Streamlit
 │   └── .streamlit/
 │       └── secrets.toml     # Configuración del backend
+├── utils/
+│   └── json_parser.py       # Función para dividir json
 ├── requirements.txt         # Dependencias comunes
 ├── Dockerfile.backend       # Imagen del backend
 ├── Dockerfile.frontend      # Imagen del frontend
