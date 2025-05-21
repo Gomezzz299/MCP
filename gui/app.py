@@ -8,6 +8,10 @@ st.title("🤖 Interfaz de MCP")
 # Inicializa sesión
 if "historial" not in st.session_state:
     st.session_state.historial = []
+if "debug_info" not in st.session_state:
+    st.session_state.debug_info = []
+if "mostrar_debug" not in st.session_state:
+    st.session_state.mostrar_debug = False
 
 server_url = st.secrets.get("server_url", "http://localhost:8000/process")
 
@@ -32,16 +36,27 @@ def enviar_pregunta():
 
     st.session_state.historial.append({"mcp": respuesta})
 
+# Entrada de texto
 st.text_input("Pregunta:", key="pregunta_input", on_change=enviar_pregunta)
 
+# Toggle para depuración
+st.checkbox("🔍 Mostrar depuración", key="mostrar_debug")
+
 st.markdown("---")
-st.write("### Historial de conversación:")
+st.subheader("🗨️ Historial de conversación")
 
 for msg in st.session_state.historial:
     if "usuario" in msg:
         st.markdown(f"<p style='color:blue;'>🧑 Tú: {msg['usuario']}</p>", unsafe_allow_html=True)
     elif "mcp" in msg:
         st.markdown(f"<p style='color:green;'>🤖 MCP: {msg['mcp']}</p>", unsafe_allow_html=True)
+    # Mostrar depuración si está activo
+    if st.session_state.mostrar_debug and i // 2 < len(st.session_state.debug_info):
+        debug_data = st.session_state.debug_info[i // 2]
+        with st.expander("🛠️ Depuración"):
+            st.json(debug_data)
 
-if st.button("Limpiar historial"):
+# Botón para limpiar
+if st.button("🧹 Limpiar historial"):
     st.session_state.historial = []
+    st.session_state.debug_info = []

@@ -1,51 +1,33 @@
 from core.router_llm import LLMRouter
 from core.registry import AgentRegistry
+from agents.base import AgenteBase
+
 
 class MCPServer:
     """
-    Servidor MCP (Multi-Agent Control Point) que enruta preguntas de usuario
-    a un modelo LLM o a agentes especializados registrados dinámicamente.
+    Servidor principal de MCP. Maneja el enrutamiento y registro de agentes.
     """
 
     def __init__(self, debug: bool = False):
-        """
-        Inicializa el servidor MCP.
-
-        Args:
-            debug (bool): Si está en True, muestra información de depuración.
-        """
-        self.registry = AgentRegistry()
-        self.router = LLMRouter(debug=debug)
         self.debug = debug
-
-    def procesar(self, mensaje: str) -> str:
+        self.router = LLMRouter()
+        self.registry = AgentRegistry(llm_router=self.router)
+    
+    def procesar_mensaje(self, mensaje: str) -> str:
         """
-        Procesa un mensaje del usuario utilizando el router LLM.
-        Si la interpretación indica un agente, se invoca al agente correspondiente.
-        En caso de error o interpretación inválida, se devuelve un mensaje de error.
+        Procesa un mensaje de usuario seleccionando el agente adecuado.
 
         Args:
-            mensaje (str): Pregunta o petición del usuario.
+            mensaje (str): Pregunta del usuario.
 
         Returns:
-            str: Respuesta generada por el agente o mensaje de error si no se puede procesar.
+            str: Respuesta generada por el agente y LLM.
         """
-        interpretacion = self.router.interpretar(mensaje)
+        llm, clase_agente = self.router.elegir_llm(mensaje)
+        print("DEBUG: agente:", clase_agente, "llm:", type(llm))
 
-        if self.debug:
-            print("[DEBUG] Interpretación:", interpretacion)
+        if clase_agente is None:
+            return llm.responder(mensaje)
 
-        if "agente" in interpretacion:
-            agente_id = interpretacion["agente"]
-            msg = interpretacion.get("mensaje", "")
-
-            agente = self.registry.obtener(agente_id)
-            if agente:
-                try:
-                    return agente.responder(msg, self.registry)
-                except Exception as e:
-                    return f"❌ Error al ejecutar el agente '{agente_id}': {e}"
-            else:
-                return f"❌ Agente '{agente_id}' no encontrado"
-
-        return f"❌ No se pudo procesar la petición: {interpretacion}"
+        agente = clase_agente(llm=llm)
+        return agente._responder(mensaje, self.registry)

@@ -1,29 +1,44 @@
 from datetime import datetime
-from typing import Optional, Any
-
+from decoradores.utils import responder_con_llm
 
 class AgenteFecha:
     """
-    Agente especializado en proporcionar la fecha y hora actual
-    en respuesta a mensajes que contengan consultas relacionadas.
+    Agente que responde con la fecha o la hora actual según el mensaje.
     """
+    def __init__(self, llm: object):
+        self.llm = llm
 
-    def responder(self, mensaje: str, registry: Optional[Any] = None) -> str:
+    @responder_con_llm
+    def _responder(self, mensaje: str, registry: dict = None) -> dict:
         """
-        Responde con la fecha o la hora actual según el contenido del mensaje.
+        Responde con la fecha u hora actual si se detecta en el mensaje.
 
         Args:
-            mensaje (str): Mensaje o pregunta del usuario sobre fecha/hora.
-            registry (Optional[Any]): Registro de agentes (no usado aquí, pero incluido para interfaz común).
+            mensaje (str): Pregunta del usuario
+            registry (dict, optional): Registro de agentes
 
         Returns:
-            str: Fecha en formato "dd de Mes del YYYY", hora en "HH:MM:SS"
-                 o un mensaje de error si no se entiende la consulta.
+            dict: Datos estructurados con la fecha u hora
         """
-        texto = mensaje.lower()
-        if "fecha" in texto or "día" in texto:
-            return datetime.now().strftime("%d de %B del %Y")
-        elif "hora" in texto:
-            return datetime.now().strftime("%H:%M:%S")
+        '''
+        if "fecha" in mensaje.lower() or "día" in mensaje.lower():
+            return {"fecha": datetime.now().strftime("%d de %B del %Y")}
+        elif "hora" in mensaje.lower():
+            return {"hora": datetime.now().strftime("%H:%M:%S")}
         else:
-            return "No entiendo la consulta de fecha/hora."
+            return {"error": "Consulta de fecha/hora no reconocida."}
+        '''
+        try:
+            now = datetime.now()
+            return {
+                "success": True,
+                "data": {
+                    "fecha": now.strftime("%Y-%m-%d"),
+                    "dia_semana": now.strftime("%A")
+                }
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Error al obtener la fecha: {e}"
+            }

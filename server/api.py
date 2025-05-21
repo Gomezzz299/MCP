@@ -18,5 +18,5 @@ app.add_middleware(
 async def procesar(request: Request):
     data = await request.json()
     pregunta = data.get("pregunta", "")
-    respuesta = mcp.procesar(pregunta)
+    respuesta = mcp.procesar_mensaje(pregunta)
     return {"respuesta": respuesta}

@@ -1,76 +1,49 @@
-import subprocess
-from utils.json_parser import extraer_json
+import re
+from core.ollama_wrapper import OllamaLLM
+from config import DEFAULT_OLLAMA_MODEL, DEEPSEEK_MODEL
+from agents.clima import AgenteClima
+from agents.fecha_hora import AgenteFecha
+from agents.ubicacion import AgenteUbicacion
 
 class LLMRouter:
     """
-    Clase encargada de enrutar las preguntas del usuario a un modelo LLM
-    para que decida cuál agente debe procesar la solicitud.
+    Router que elige el modelo LLM más adecuado según el contenido del mensaje.
     """
 
-    def __init__(self, model: str = "mistral", debug: bool = False):
+    def __init__(self):
+        self.llm_simple = OllamaLLM(DEFAULT_OLLAMA_MODEL)
+        self.llm_complex = OllamaLLM(DEEPSEEK_MODEL)
+
+    def elegir_llm(self, mensaje: str) -> OllamaLLM:
         """
-        Inicializa el enrutador con el modelo LLM y configuración de depuración.
+        Decide qué modelo usar en función del tipo de mensaje.
 
         Args:
-            model (str): Nombre del modelo en Ollama a utilizar. Por defecto "mistral".
-            debug (bool): Si está en True, muestra información de depuración.
-        """
-        self.model = model
-        self.debug = debug
-
-    def ask(self, prompt: str) -> str:
-        """
-        Envía un prompt al modelo LLM usando Ollama y devuelve la respuesta.
-
-        Args:
-            prompt (str): El mensaje a enviar al modelo.
+            mensaje (str): Mensaje del usuario.
 
         Returns:
-            str: Respuesta en texto plano del modelo LLM.
+            OllamaLLM: Modelo elegido.
         """
-        comando = ["ollama", "run", self.model, prompt]
-        resultado = subprocess.run(comando, capture_output=True, text=True)
-        return resultado.stdout.strip()
+        texto = mensaje.lower()
 
-    def interpretar(self, pregunta: str) -> dict:
-        """
-        Interpreta una pregunta del usuario enviándola al LLM para decidir
-        el agente adecuado o generar una respuesta directa.
+        patrones_clima = [
+            r"\bclima\b", r"\btiempo\b", r"\btemperatura\b",
+            r"\bqué d[ií]a hace\b", r"\bc[oó]mo est[aá] el d[ií]a\b", r"\bc[oó]mo est[aá] el tiempo\b"
+        ]
+        if any(re.search(pat, texto) for pat in patrones_clima):
+            return self.llm_simple, AgenteClima
 
-        Args:
-            pregunta (str): Pregunta o petición del usuario.
+        patrones_fecha = [
+            r"\bfecha\b", r"\bd[ií]a es\b", r"\bqué d[ií]a es\b",
+            r"\bhora\b", r"\bqué hora\b", r"\bhoy\b"
+        ]
+        if any(re.search(pat, texto) for pat in patrones_fecha):
+            return self.llm_simple, AgenteFecha
 
-        Returns:
-            dict: Diccionario con la interpretación del modelo LLM.
-                  Puede incluir las claves:
-                    - {"agente": ..., "mensaje": ...}
-                  o en caso de error:
-                    - {"respuesta": ...}
-        """
-        system_prompt = (
-            "Eres un sistema de enrutamiento. Devuelve SOLO un JSON válido con alguno de estos agentes:\n"
-            "- Si puedes responder tú: {\"agente\": \"LLM_EXPERTO\", \"mensaje\": \"respuesta a la pregunta\"}\n"
-            "- Si necesitas saber el clima: {\"agente\": \"CLIMA\", \"mensaje\": \"obtener_clima\"}\n"
-            "- Si necesitas saber la fecha: {\"agente\": \"FECHA\", \"mensaje\": \"obtener_fecha\"}\n"
-            "- Si necesitas saber la ubicación: {\"agente\": \"UBICACION\", \"mensaje\": \"obtener_ubicacion\"}\n"
-            "NO inventes agentes, NO des texto libre, SOLO devuelve un JSON válido como los anteriores.\n"
-            f"Usuario: {pregunta}\nRespuesta:"
-        )
+        patrones_ubicacion = [r"\búbicaci[oó]n\b", r"\bd[oó]nde estoy\b", r"\blugar\b"]
+        if any(re.search(pat, texto) for pat in patrones_ubicacion):
+            return self.llm_simple, AgenteUbicacion
 
-        if self.debug:
-            print("[DEBUG] 💬 Prompt enviado al LLM:\n", system_prompt)
+        return self.llm_complex, None  # O podrías definir un agente por defecto
 
-        raw_response = self.ask(system_prompt)
 
-        if self.debug:
-            print("[DEBUG] 🧪 RAW del LLM:\n", raw_response)
-
-        try:
-            json_data = extraer_json(raw_response)
-            if not json_data:
-                raise ValueError("No se encontró JSON válido en la respuesta.")
-            return json_data
-        except Exception as e:
-            if self.debug:
-                print(f"[DEBUG] ❌ No se pudo interpretar JSON, fallback con texto plano: {e}")
-            return {"respuesta": raw_response.strip()}

@@ -1,49 +1,37 @@
 from agents.fecha_hora import AgenteFecha
 from agents.ubicacion import AgenteUbicacion
 from agents.clima import AgenteClima
-from agents.experto_llm import AgenteLLMExperto
+from agents.estado_servidor import AgenteEstadoServidor
+from agents.base import AgenteBase
 from typing import Dict, Any
+
 
 
 class AgentRegistry:
     """
-    Registro centralizado de agentes. Permite registrar e invocar
-    instancias de agentes por nombre.
+    Registra manualmente los agentes del sistema.
     """
 
-    def __init__(self) -> None:
-        """
-        Inicializa el registro con los agentes predefinidos:
-        - FECHA: Devuelve la fecha y hora actuales.
-        - UBICACION: Devuelve la ubicación del usuario.
-        - CLIMA: Consulta el clima actual en la ubicación.
-        - LLM_EXPERTO: Agente LLM generalista para respuestas técnicas.
-        """
-        self._agentes: Dict[str, Any] = {
-            "FECHA": AgenteFecha(),
-            "UBICACION": AgenteUbicacion(),
-            "CLIMA": AgenteClima(),
-            "LLM_EXPERTO": AgenteLLMExperto(),
+    def __init__(self, llm_router):
+        self.llm_router = llm_router
+        self.llm_simple = self.llm_router.llm_simple
+        self.llm_experto = self.llm_router.llm_complex
+
+        self.agentes = {
+            "fecha": AgenteFecha(llm=self.llm_simple),
+            "ubicacion": AgenteUbicacion(llm=self.llm_simple),
+            "clima": AgenteClima(llm=self.llm_experto),
+            
         }
 
-    def obtener(self, nombre: str) -> Any:
+    def encontrar_agente(self, mensaje: str):
         """
-        Obtiene una instancia de un agente dado su nombre.
+        Devuelve el primer agente disponible para responder.
 
         Args:
-            nombre (str): Identificador del agente (ej. "FECHA", "CLIMA").
+            mensaje (str): Pregunta del usuario.
 
         Returns:
-            Any: Instancia del agente o None si no se encuentra.
+            Agente adecuado.
         """
-        return self._agentes.get(nombre)
-
-    def registrar(self, nombre: str, agente: Any) -> None:
-        """
-        Registra dinámicamente un nuevo agente en el sistema.
-
-        Args:
-            nombre (str): Nombre clave para identificar el agente.
-            agente (Any): Instancia del agente a registrar.
-        """
-        self._agentes[nombre] = agente
+        return self.agentes[0] if self.agentes else None
