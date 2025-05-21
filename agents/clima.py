@@ -24,10 +24,20 @@ class AgenteClima:
             )
             r = requests.get(url)
             data = r.json()
+            weather = data.get("current_weather", {})
+
             return {
-                "temperatura": data["current_weather"]["temperature"],
-                "unidad": "°C",
-                "ciudad": "Madrid"
+                "success": True,
+                "data": {
+                    "ciudad": "Madrid",
+                    "temperatura": weather.get("temperature"),
+                    "unidad": "°C",
+                    "viento": weather.get("windspeed"),
+                    "descripcion": weather.get("weathercode")  # Puedes mapearlo si quieres
+                }
             }
-        except Exception:
-            return {"error": "No se pudo obtener el clima."}
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"No se pudo obtener el clima: {e}"
+            }

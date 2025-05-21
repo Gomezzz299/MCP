@@ -1,5 +1,9 @@
 from datetime import datetime
 from decoradores.utils import responder_con_llm
+import locale
+
+# locale.setlocale(locale.LC_TIME, "es_ES.UTF-8")  # para traducir día y mes al español
+
 
 class AgenteFecha:
     """
@@ -33,8 +37,12 @@ class AgenteFecha:
             return {
                 "success": True,
                 "data": {
-                    "fecha": now.strftime("%Y-%m-%d"),
-                    "dia_semana": now.strftime("%A")
+                    "fecha_completa": now.strftime("%A %d de %B de %Y"),  # miércoles 21 de mayo de 2025
+                    "iso": now.strftime("%Y-%m-%d"),
+                    "dia": now.strftime("%A"),
+                    "dia_numero": now.strftime("%d"),
+                    "mes": now.strftime("%B"),
+                    "anio": now.strftime("%Y")
                 }
             }
         except Exception as e:

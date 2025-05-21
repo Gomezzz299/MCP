@@ -20,8 +20,16 @@ class AgenteUbicacion:
             response = requests.get("https://ipinfo.io/json")
             data = response.json()
             return {
-                "ciudad": data.get("city", "desconocida"),
-                "pais": data.get("country", "desconocido")
+                "success": True,
+                "data": {
+                    "ciudad": data.get("city", "desconocida"),
+                    "region": data.get("region", "desconocida"),
+                    "pais": data.get("country", "desconocido"),
+                    "latlong": data.get("loc", "desconocido")  # formato "lat,long"
+                }
             }
-        except Exception:
-            return {"error": "No se pudo obtener la ubicación."}
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"No se pudo obtener la ubicación: {e}"
+            }
