@@ -8,6 +8,18 @@ class AgenteUbicacion:
     def __init__(self, llm: object):
         self.llm = llm
 
+    def obtener_ubicacion(self) -> dict:
+        try:
+            response = requests.get("https://ipinfo.io/json")
+            data = response.json()
+            return {
+                "ciudad": data.get("city", "desconocida"),
+                "pais": data.get("country", "desconocido"),
+                "loc": data.get("loc")
+            }
+        except Exception:
+            return {"error": "No se pudo obtener la ubicación."}
+
     @responder_con_llm
     def _responder(self, mensaje: str, registry: dict = None) -> dict:
         """
@@ -25,7 +37,7 @@ class AgenteUbicacion:
                     "ciudad": data.get("city", "desconocida"),
                     "region": data.get("region", "desconocida"),
                     "pais": data.get("country", "desconocido"),
-                    "latlong": data.get("loc", "desconocido")  # formato "lat,long"
+                    "loc": data.get("loc", None)  # formato: "lat,lon"
                 }
             }
         except Exception as e:
