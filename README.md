@@ -8,6 +8,7 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 
 - 🌐 Backend con FastAPI
 - 🧠 Agentes especializados (fecha, ubicación, clima, experto LLM)
+- 🤖 Lógica inteligente para que los agentes colaboren entre sí
 - 🖥️ Interfaz visual con Streamlit (GUI)
 - 🐳 Contenedores Docker para fácil despliegue
 - 🔌 Comunicación cliente-servidor lista para red local o remoto
@@ -22,7 +23,9 @@ MCP/
 │   ├── registry.py          # Registra todos los agentes
 │   └── router_llm.py        # Permite distribución entre agentes
 ├── agents/
-│   └── agent.py             # cada agente incluido en el servidor
+│   ├── fecha.py             # Agente de fecha/hora
+│   ├── ubicacion.py         # Agente de geolocalización (por IP)
+│   └── clima.py             # Agente de clima (usa ubicación)
 ├── server/
 │   ├── mcp_server.py        # Lógica del MCP
 │   └── api.py               # Backend FastAPI
@@ -32,6 +35,8 @@ MCP/
 │       └── secrets.toml     # Configuración del backend
 ├── utils/
 │   └── json_parser.py       # Función para dividir json
+├── decoradores/
+│   └── utils.py             # Decorador para manejar LLM y respuestas
 ├── requirements.txt         # Dependencias comunes
 ├── Dockerfile.backend       # Imagen del backend
 ├── Dockerfile.frontend      # Imagen del frontend
@@ -122,9 +127,22 @@ La aplicación decidirá si responder directamente o delegar la pregunta a un ag
 | FECHA        | Devuelve la fecha y hora actuales        |
 | UBICACION    | Detecta la ciudad y país mediante IP     |
 | CLIMA        | Devuelve el clima en la ubicación actual |
-| LLM_EXPERTO  | Consulta al modelo `deepseek-r1:7b` via `ollama` |
 
 ---
+
+## 🔄 Interacción entre agentes
+
+El agente de clima ahora usa directamente el agente de ubicación para determinar coordenadas geográficas (`lat`, `lon`) y ciudad antes de consultar el clima, permitiendo respuestas adaptadas al lugar real del usuario. Esto mejora la modularidad y colaboración entre agentes.
+
+---
+
+## ⚠️ Notas técnicas importantes
+
+- Los agentes devuelven datos estructurados (`dict`) y luego se genera la respuesta natural mediante el decorador @responder_con_llm.
+
+- Los agentes que necesitan datos de otros agentes deben invocar métodos internos, no los decorados (para evitar recibir solo texto).
+
+- Cada agente especifica qué modelo de LLM utilizar (`llm_simple` o `llm_experto`).
 
 ## 📄 Licencia
 
@@ -134,4 +152,4 @@ Este proyecto está licenciado bajo MIT License.
 
 ## 🙋‍♂️ Autor
 
-Desarrollado por [Tu Nombre o Alias].
+Desarrollado por Alejandro Gómez Sierra.
