@@ -1,9 +1,12 @@
 import re
+from typing import Optional
+
 from core.ollama_wrapper import OllamaLLM
 from config import DEFAULT_OLLAMA_MODEL, DEEPSEEK_MODEL
 from agents.clima import AgenteClima
 from agents.fecha_hora import AgenteFecha
 from agents.ubicacion import AgenteUbicacion
+from core.context_loader import obtener_contexto_global
 
 class LLMRouter:
     """
@@ -46,4 +49,8 @@ class LLMRouter:
 
         return self.llm_complex, None  # O podrías definir un agente por defecto
 
-
+    def enrutar_a_llm(mensaje: str, modelo, db_path: Optional[str] = None) -> str:
+        contexto = obtener_contexto_global(db_path)
+        prompt = f"{contexto}Usuario: {mensaje}\nAsistente:"
+        respuesta = modelo.completar(prompt)
+        return respuesta
