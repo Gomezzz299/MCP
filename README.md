@@ -8,6 +8,8 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 
 - 🌐 Backend con FastAPI
 - 🧠 Agentes especializados (fecha, ubicación, clima, experto LLM)
+- 🧩 Sistema de agentes extensible y modular con herencia
+- ⚙️ Herencia común `AgenteBase` para manejo uniforme de errores y respuestas
 - 🤖 Lógica inteligente para que los agentes colaboren entre sí
 - 🖥️ Interfaz visual con Streamlit (GUI)
 - 🐳 Contenedores Docker para fácil despliegue
@@ -20,27 +22,31 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 ```
 MCP/
 ├── core/
-│   ├── registry.py          # Registra todos los agentes
-│   └── router_llm.py        # Permite distribución entre agentes
-├── agents/
-│   ├── fecha.py             # Agente de fecha/hora
-│   ├── ubicacion.py         # Agente de geolocalización (por IP)
-│   └── clima.py             # Agente de clima (usa ubicación)
+│   ├── ollama_wrapper.py       # Encapsula la lógica para interactuar con modelos LLM en Ollama
+│   ├── context_loader.py       # Carga contexto adicional desde base de datos u otras fuentes
+│   └── router_llm.py           # Router inteligente que decide qué agente usar en base a la consulta
+├── agents/                     # Carpeta que contiene todos los agentes disponibles del sistema
 ├── server/
-│   ├── mcp_server.py        # Lógica del MCP
-│   └── api.py               # Backend FastAPI
+│   ├── mcp_server.py           # Punto central que gestiona los agentes registrados y el procesamiento de mensajes
+│   └── api.py                  # Define la API REST usando FastAPI para comunicación con la GUI u otros clientes
 ├── gui/
-│   ├── app.py               # Interfaz Streamlit
+│   ├── app.py                  # Aplicación Streamlit que actúa como interfaz gráfica del sistema
 │   └── .streamlit/
-│       └── secrets.toml     # Configuración del backend
+│       └── secrets.toml        # Archivo de configuración que contiene la URL del backend para la GUI
 ├── utils/
-│   └── json_parser.py       # Función para dividir json
-├── decoradores/
-│   └── utils.py             # Decorador para manejar LLM y respuestas
-├── requirements.txt         # Dependencias comunes
-├── Dockerfile.backend       # Imagen del backend
-├── Dockerfile.frontend      # Imagen del frontend
-└── docker-compose.yml       # Orquestación de servicios
+│   ├── db_utils.py             # Funciones auxiliares para conectarse y consultar la base de datos SQLite
+│   ├── agente_base.py          # Clase base AgenteBase, común a todos los agentes personalizados
+│   └── json_parser.py          # Utilidad para dividir respuestas JSON en partes más manejables
+├── database/
+│   ├── context.db              # Base de datos SQLite con información contextual para los agentes o el LLM
+│   ├── comprobar_db.py         # Script que valida la existencia y consistencia de la base de datos
+│   └── create_db.py            # Script para generar y poblar la base de datos desde cero
+├── config.py                   # Archivo central de configuración del sistema (rutas, modelos, flags, etc.)
+├── requirements.txt            # Lista de dependencias de Python necesarias para ejecutar el proyecto
+├── Dockerfile.backend          # Dockerfile para construir el contenedor del backend (API + lógica de agentes)
+├── Dockerfile.frontend         # Dockerfile para construir el contenedor de la interfaz Streamlit
+└── docker-compose.yml          # Archivo para levantar los servicios frontend y backend de forma conjunta
+
 ```
 
 ---
@@ -136,11 +142,38 @@ El agente de clima ahora usa directamente el agente de ubicación para determina
 
 ---
 
+## 🧩 Cómo crear un nuevo agente
+
+1. Crea una clase que herede de AgenteBase:
+
+```bash
+from agentes.base import AgenteBase
+
+class AgenteEjemplo(AgenteBase):
+    patrones = [r"expresiones.*clave", r"otra.*forma.*de.*preguntar"]
+
+    def agente(self) -> dict:
+        datos = {"respuesta": "Soy un agente de ejemplo"}
+        return {"success": True, "data": datos}
+```
+
+2. Especifica los patrones para detectar preguntas relevantes.
+
+3. Implementa `agente()` que devuelve un dict con la clave success y data o error.
+
+4. El agente usará automáticamente el LLM indicado para generar respuestas naturales basadas en su data.
+
+---
+
 ## ⚠️ Notas técnicas importantes
 
-- Los agentes devuelven datos estructurados (`dict`) y luego se genera la respuesta natural mediante el decorador @responder_con_llm.
+- Todos los agentes heredan de AgenteBase, lo que gestiona:
 
-- Los agentes que necesitan datos de otros agentes deben invocar métodos internos, no los decorados (para evitar recibir solo texto).
+    - Errores estándar
+
+    - Conversión de datos a respuesta natural vía LLM
+
+- El método agente() debe devolver un diccionario estructurado.
 
 - Cada agente especifica qué modelo de LLM utilizar (`llm_simple` o `llm_experto`).
 
