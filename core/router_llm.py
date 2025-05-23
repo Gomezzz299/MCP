@@ -11,10 +11,10 @@ from core.context_loader import obtener_contexto_global
 class LLMRouter:
     """
     Router que elige el modelo LLM más adecuado según el contenido del mensaje.
-    Carga los patrones y clases de agente dinámicamente desde la carpeta 'agents'.
+    Carga los patrones y clases de agente dinámicamente desde la carpeta 'agentes'.
     """
 
-    def __init__(self, db_path: str = "database/context.db", agents_folder: str = "agents"):
+    def __init__(self, db_path: str = "database/context.db", agents_folder: str = "agentes"):
         self.db_path = db_path
         self.agents_folder = agents_folder
         self.llm_simple = OllamaLLM(DEFAULT_OLLAMA_MODEL)

@@ -1,6 +1,5 @@
 from core.router_llm import LLMRouter
 from core.context_loader import obtener_contexto_global  # NUEVO
-from agents.base import AgenteBase
 import os
 
 class MCPServer:
@@ -37,7 +36,7 @@ class MCPServer:
             # Si se detectó un agente, usamos el modelo simple
             agente = clase_agente(llm=self.router.llm_simple)
             print(f"DEBUG: usando agente {clase_agente.__name__} con llm_simple")
-            return agente._responder(mensaje)
+            return agente.responder(mensaje)
         except Exception as e:
             print("ERROR:", e)
             print("DEBUG: agente:", repr(clase_agente), "llm:", type(llm))
