@@ -13,8 +13,8 @@ def responder_con_llm(func: Callable) -> Callable:
         str: Respuesta generada en lenguaje natural.
     """
     @wraps(func)
-    def wrapper(self, mensaje: str, registry, *args: Any, **kwargs: Any) -> str:
-        datos = func(self, mensaje, registry, *args, **kwargs)
+    def wrapper(self, mensaje: str, *args: Any, **kwargs: Any) -> str:
+        datos = func(self, mensaje, *args, **kwargs)
         if not isinstance(datos, dict):
             return "❌ El agente no devolvió datos en formato JSON/dict."
         if not hasattr(self, "llm") or self.llm is None:

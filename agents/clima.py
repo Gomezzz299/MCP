@@ -6,11 +6,26 @@ class AgenteClima:
     """
     Agente que proporciona el clima actual para una ubicación fija (Madrid).
     """
+    patrones = [
+        r"\bclima\b",
+        r"\btiempo\b",
+        r"\bqu[eé] tiempo hace\b",
+        r"\bc[oó]mo est[aá] el clima\b",
+        r"\bc[oó]mo est[aá] el tiempo\b",
+        r"\bqu[eé] clima hay\b",
+        r"\bqu[eé] clima hace\b",
+        r"\btemperatura\b",
+        r"\bva a llover\b",
+        r"\bhace fr[ií]o\b",
+        r"\bhace calor\b",
+        r"\best[aá] lloviendo\b",
+        r"\bpron[oó]stico\b"
+    ]
     def __init__(self, llm: object):
         self.llm = llm
 
     @responder_con_llm
-    def _responder(self, mensaje: str, registry: dict = None) -> dict:
+    def _responder(self, mensaje: str) -> dict:
         try:
             agente_ubicacion = AgenteUbicacion(llm=self.llm)
             ubicacion = agente_ubicacion.obtener_ubicacion()

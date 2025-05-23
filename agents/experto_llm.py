@@ -13,7 +13,7 @@ class AgenteLLMExperto:
         """
         self.model = "deepseek-r1:7b"
 
-    def responder(self, mensaje: str, registry: Optional[object] = None) -> str:
+    def responder(self, mensaje: str) -> str:
         """
         Ejecuta el modelo experto a través de Ollama para responder la pregunta dada.
 

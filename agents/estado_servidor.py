@@ -8,7 +8,7 @@ class AgenteEstadoServidor:
         self.llm = llm
 
     @responder_con_llm
-    def _responder(self, mensaje: str, registry: dict = None) -> dict:
+    def _responder(self, mensaje: str) -> dict:
         """
         Devuelve el estado del servidor incluyendo carga, uptime y memoria.
 
