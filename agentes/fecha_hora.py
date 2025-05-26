@@ -30,15 +30,12 @@ class AgenteFecha(AgenteBase):
     def agente(self) -> dict:
         now = datetime.now()
         return {
-            "success": True,
-            "data": {
-                "fecha_completa": now.strftime("%A %d de %B de %Y"),
-                "iso": now.strftime("%Y-%m-%d"),
-                "dia": now.strftime("%A"),
-                "dia_numero": now.strftime("%d"),
-                "mes": now.strftime("%B"),
-                "anio": now.strftime("%Y"),
-                "hora_24h": now.strftime("%H:%M:%S"),
-                "hora_12h": now.strftime("%I:%M:%S %p"),
-            }
+            "fecha_completa": now.strftime("%A %d de %B de %Y"),
+            "iso": now.strftime("%Y-%m-%d"),
+            "dia": now.strftime("%A"),
+            "dia_numero": now.strftime("%d"),
+            "mes": now.strftime("%B"),
+            "anio": now.strftime("%Y"),
+            "hora_24h": now.strftime("%H:%M:%S"),
+            "hora_12h": now.strftime("%I:%M:%S %p"),
         }

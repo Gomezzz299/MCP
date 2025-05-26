@@ -23,11 +23,8 @@ class AgenteUbicacion(AgenteBase):
         response = requests.get("https://ipinfo.io/json")
         data = response.json()
         return {
-            "success": True,
-            "data": {
-                "ciudad": data.get("city", "desconocida"),
-                "region": data.get("region", "desconocida"),
-                "pais": data.get("country", "desconocido"),
-                "loc": data.get("loc", None)  # formato: "lat,lon"
-            }
+            "ciudad": data.get("city", "desconocida"),
+            "region": data.get("region", "desconocida"),
+            "pais": data.get("country", "desconocido"),
+            "loc": data.get("loc", None)  # formato: "lat,lon"
         }
