@@ -51,12 +51,9 @@ class AgenteClima(AgenteBase):
         weather = data.get("current_weather", {})
 
         return {
-            "success": True,
-            "data": {
-                "ciudad": ciudad,
-                "temperatura": weather.get("temperature"),
-                "unidad": "°C",
-                "viento": weather.get("windspeed"),
-                "descripcion": weather.get("weathercode")
-            }
+            "ciudad": ciudad,
+            "temperatura": weather.get("temperature"),
+            "unidad": "°C",
+            "viento": weather.get("windspeed"),
+            "descripcion": weather.get("weathercode")
         }

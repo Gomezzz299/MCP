@@ -36,11 +36,8 @@ class AgenteEstadoServidor(AgenteBase):
         memoria_libre = round(psutil.virtual_memory().available / (1024 ** 3), 2)
 
         return {
-            "success": True,
-            "data": {
-                "estado": "activo",
-                "uptime_horas": uptime_horas,
-                "carga_cpu": f"{carga_cpu}%",
-                "memoria_libre": f"{memoria_libre} GB"
-            }
+            "estado": "activo",
+            "uptime_horas": uptime_horas,
+            "carga_cpu": f"{carga_cpu}%",
+            "memoria_libre": f"{memoria_libre} GB"
         }

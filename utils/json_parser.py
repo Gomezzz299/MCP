@@ -14,15 +14,16 @@ def extraer_json(texto: str) -> Optional[Any]:
     Returns:
         Optional[Any]: Diccionario o lista decodificada si se encuentra un JSON válido, o None si no se encuentra.
     """
-    inicio = texto.find('{')
+    inicio = texto.find('{')  # Busca la primera aparición de una llave de apertura
     if inicio == -1:
-        return None
+        return None  # Si no hay '{', no hay JSON posible
 
+    # Recorre carácter a carácter desde la llave de apertura hasta el final del texto
     for fin in range(inicio + 1, len(texto) + 1):
-        fragmento = texto[inicio:fin]
+        fragmento = texto[inicio:fin]  # Extrae el fragmento actual desde la llave
         try:
-            return json.loads(fragmento)
+            return json.loads(fragmento)  # Intenta parsearlo como JSON
         except json.JSONDecodeError:
-            continue
+            continue  # Si falla, avanza al siguiente carácter y vuelve a intentar
 
-    return None
+    return None  # Si no se encontró un JSON válido, retorna None
