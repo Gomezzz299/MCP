@@ -1,22 +1,7 @@
 # 🧠 MCP: Multi-Agent Control Point
 
 Este proyecto implementa un servidor multi-agente que enruta preguntas del usuario a un modelo LLM o a agentes especializados (como fecha, ubicación, clima o un experto técnico). Incluye una interfaz web sencilla construida con Streamlit para facilitar su uso.
----
-```mermaid
-flowchart TD
-    U[Usuario] --> M[MCP]
-    M --> A[Analiza petición]
-    A --> R[Selecciona Agente]
-    R -->|Agente 1| G1[Consulta hora/fecha]
-    R -->|Agente 2| G2[Consulta ubicación]
-    R -->|Agente 3| G3[Consulta clima]
-    G1 --> D1[Devuelve JSON]
-    G2 --> D2[Devuelve JSON]
-    G3 --> D3[Devuelve JSON]
-    D1 & D2 & D3 --> C[Compone respuesta con LLM]
-    C --> M
-    M --> U
-```
+
 ---
 
 ## 🚀 Características
