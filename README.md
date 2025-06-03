@@ -6,7 +6,7 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 
 ```mermaid
 graph TD
-    GUI[🧠 Interfaz Web<br/>(Streamlit GUI)] -->|HTTP| API[🔌 API REST<br/>(FastAPI)]
+    GUI[Interfaz Web<br/>(Streamlit GUI)] -->|HTTP| API[🔌 API REST<br/>(FastAPI)]
     API --> Router[📦 Router LLM inteligente<br/>(router_llm.py)]
     Router --> Fecha[🗓️ Agente Fecha]
     Router --> Ubicacion[📍 Agente Ubicación]
