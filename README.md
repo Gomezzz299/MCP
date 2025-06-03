@@ -6,17 +6,17 @@ Este proyecto implementa un servidor multi-agente que enruta preguntas del usuar
 
 ```mermaid
 graph TD
-    GUI[🧠 Interfaz Web (Streamlit GUI)] -->|HTTP| API[🔌 API REST (FastAPI)]
-    API --> Router[📦 Router LLM inteligente (router_llm.py)]
-    Router --> Fecha[🗓️ Agente Fecha]
-    Router --> Ubicacion[📍 Agente Ubicación]
-    Router --> Clima[☁️ Agente Clima]
-    Router --> Experto[📚 Agente Experto LLM]
+    GUI[Interfaz Web Streamlit] -->|HTTP| API[API REST FastAPI]
+    API --> Router[Router LLM]
+    Router --> Fecha[Agente Fecha]
+    Router --> Ubicacion[Agente Ubicacion]
+    Router --> Clima[Agente Clima]
+    Router --> Experto[Agente Experto]
     Clima --> Ubicacion
-    Router --> Contexto[(📁 DB Contexto<br/>SQLite)]
-    API --> Ollama[🤖 Ollama Wrapper (ollama_wrapper.py)]
+    Router --> Contexto[Base de datos SQLite]
+    API --> Ollama[Wrapper Ollama]
 
-    subgraph 🐳 Docker
+    subgraph Docker
         GUI
         API
     end
@@ -30,6 +30,7 @@ graph TD
         Contexto
         Ollama
     end
+
 ```
 
 ---
